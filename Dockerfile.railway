@@ -4,7 +4,7 @@ FROM ghcr.io/openclaw/openclaw:latest
 # Переключаемся на root только для установки софта
 USER root
 
-# Ставим системный софт и GitHub CLI
+# Ставим всё: системный софт, GitHub CLI
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     git jq ffmpeg tmux golang-go ca-certificates curl gnupg \
     && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
@@ -13,11 +13,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends gh \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Railway CLI ставим через npm — это на 100% надежнее в этой среде
-RUN npm install -g @railway/cli
-
-# Blogwatcher пока не ставим (он валит билд), разберемся с ним отдельно
-# Если он очень нужен, попробуем поставить его когда бот загрузится.
+# Устанавливаем Railway CLI и ACPX (рантайм для кодинга) через npm
+RUN npm install -g @railway/cli @openclaw/acpx
 
 # Возвращаемся к пользователю бота
 USER node

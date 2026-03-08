@@ -1,29 +1,21 @@
-# 1. Берем официальный образ последней версии. 
-# Это гарантирует, что ты всегда на актуальном движке.
+# Берем официальный стабильный образ как базу
 FROM ghcr.io/openclaw/openclaw:latest
 
-# 2. Переходим под root для установки системного софта
+# Переключаемся на root только для установки софта
 USER root
 
-# 3. Ставим всё, что просила Валя (и даже больше)
+# Ставим всё: git, jq, ffmpeg, tmux, go, gh, railway
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     git jq ffmpeg tmux golang-go ca-certificates curl gnupg \
-    # Установка GitHub CLI (gh)
     && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
     && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
     && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends gh \
-    # Установка Railway CLI
     && curl -fsSL https://railway.app/install.sh | sh \
-    # Установка Blogwatcher через Go
-    && go install github.com/petersteinberger/blogwatcher@latest \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
-# Добавляем путь к бинарникам Go (чтобы blogwatcher был виден системе)
-ENV PATH="/root/go/bin:${PATH}"
-
-# 4. Возвращаемся под обычного пользователя бота
+# Возвращаемся к пользователю бота
 USER node
 
-# Команда запуска остается стандартной
+# Команда запуска стандартная
 CMD ["openclaw", "gateway"]

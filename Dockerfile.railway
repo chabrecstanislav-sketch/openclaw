@@ -4,15 +4,20 @@ FROM ghcr.io/openclaw/openclaw:latest
 # Переключаемся на root только для установки софта
 USER root
 
-# Ставим всё: git, jq, ffmpeg, tmux, go, gh, railway
+# Ставим системный софт и GitHub CLI
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     git jq ffmpeg tmux golang-go ca-certificates curl gnupg \
     && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
     && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
     && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends gh \
-    && curl -fsSL https://railway.app/install.sh | sh \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Railway CLI ставим через npm — это на 100% надежнее в этой среде
+RUN npm install -g @railway/cli
+
+# Blogwatcher пока не ставим (он валит билд), разберемся с ним отдельно
+# Если он очень нужен, попробуем поставить его когда бот загрузится.
 
 # Возвращаемся к пользователю бота
 USER node

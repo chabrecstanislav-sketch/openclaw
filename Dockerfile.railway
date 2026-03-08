@@ -1,10 +1,8 @@
-# Берем официальный стабильный образ как базу
 FROM ghcr.io/openclaw/openclaw:latest
 
-# Переключаемся на root только для установки софта
 USER root
 
-# Ставим всё: системный софт, GitHub CLI
+# Системные инструменты
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     git jq ffmpeg tmux golang-go ca-certificates curl gnupg \
     && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
@@ -13,11 +11,9 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends gh \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем Railway CLI и ACPX (рантайм для кодинга) через npm
-RUN npm install -g @railway/cli @openclaw/acpx
+# Тот самый фикс: acpx вместо @openclaw/acpx
+RUN npm install -g @railway/cli acpx
 
-# Возвращаемся к пользователю бота
 USER node
 
-# Команда запуска стандартная
 CMD ["openclaw", "gateway"]

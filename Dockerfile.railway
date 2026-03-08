@@ -2,6 +2,7 @@ FROM ghcr.io/openclaw/openclaw:latest
 
 USER root
 
+# Системные инструменты
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     git jq ffmpeg tmux golang-go ca-certificates curl gnupg \
     && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
@@ -10,11 +11,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends gh \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем acpx для ACP
-RUN npm install -g @openclaw/acpx
-
-# Railway CLI через npm (опционально)
-RUN npm install -g @railway/cli
+# ВНИМАНИЕ: тут просто acpx, без всяких @openclaw/
+RUN npm install -g @railway/cli acpx
 
 USER node
 
